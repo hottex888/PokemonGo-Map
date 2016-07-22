@@ -109,11 +109,12 @@ function pokemonLabel(name, disappear_time, id, latitude, longitude) {
         <div>
             <a href='https://www.google.com/maps/dir/Current+Location/${latitude},${longitude}'
                     target='_blank' title='View in Maps'>Get directions</a>
-        </div>`;
+        </div>
+        <div><textarea style='border:none;'>${createGPXWaypoint(latitude, longitude)}</textarea></div>`;
     return contentstring;
 };
 
-function gymLabel(team_name, team_id, gym_points) {
+function gymLabel(team_name, team_id, gym_points, latitude, longitude) {
     var gym_color = ["0, 0, 0, .4", "74, 138, 202, .6", "240, 68, 58, .6", "254, 217, 40, .6"];
     var str;
     if (team_name == 0) {
@@ -131,9 +132,16 @@ function gymLabel(team_name, team_id, gym_points) {
                 <img height='70px' style='padding: 5px;' src='static/forts/${team_name}_large.png'>
             </div>
             <div>Prestige: ${gym_points}</div>
-            </center></div>`;
+            </center></div>
+            <div><textarea style='border:none;'>${createGPXWaypoint(latitude, longitude)}</textarea></div>`;
     }
 
+    return str;
+}
+
+function createGPXWaypoint(latitude, longitude) {
+    var str = `<wpt lat='${latitude.toFixed(5)}' lon='${longitude.toFixed(5)}'> <time>2016-01-01T00:00:00Z</time> </wpt>`
+    
     return str;
 }
 
@@ -172,7 +180,7 @@ function setupGymMarker(item) {
     });
 
     marker.infoWindow = new google.maps.InfoWindow({
-        content: gymLabel(gym_types[item.team_id], item.team_id, item.gym_points)
+        content: gymLabel(gym_types[item.team_id], item.team_id, item.gym_points, item.latitude, item.longitude)
     });
 
     addListeners(marker);
@@ -286,7 +294,7 @@ function updateMap() {
                     map_gyms[item.gym_id].marker = setupGymMarker(item);
                 } else { // if it hasn't changed generate new label only (in case prestige has changed)
                     map_gyms[item.gym_id].marker.infoWindow = new google.maps.InfoWindow({
-                        content: gymLabel(gym_types[item.team_id], item.team_id, item.gym_points)
+                        content: gymLabel(gym_types[item.team_id], item.team_id, item.gym_points, item.latitude, item.longitude)
                     });
                 }
             }
